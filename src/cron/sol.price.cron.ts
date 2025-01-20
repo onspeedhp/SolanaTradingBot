@@ -2,7 +2,7 @@ import { NATIVE_MINT } from '@solana/spl-token';
 import cron from 'node-cron';
 import redisClient from '../services/redis';
 import { log } from 'console';
-const EVERY_1_MIN = '*/5 * * * * *';
+const EVERY_1_MIN = '*/15 * * * * *';
 export const runSOLPriceUpdateSchedule = () => {
   try {
     cron
@@ -17,7 +17,7 @@ export const runSOLPriceUpdateSchedule = () => {
   }
 };
 
-const BIRDEYE_API_KEY = process.env.BIRD_EVEY_API || '';
+const BIRDEYE_API_KEY = process.env.BIRD_EYE_API || '';
 const REQUEST_HEADER = {
   accept: 'application/json',
   'x-chain': 'solana',
@@ -30,18 +30,14 @@ const updateSolPrice = async () => {
     const key = `${solmint}_price`;
     const options = {
       method: 'GET',
-      headers: {
-        'X-API-KEY': 'd86a6a52f0174f89880fd9fcaa633ded',
-        accept: 'application/json',
-        'x-chain': 'solana',
-      },
+      headers: REQUEST_HEADER,
     };
     const response = await fetch(
       `https://public-api.birdeye.so/defi/price?address=${solmint}`,
       options
     );
     const res = await response.json();
-    console.log('🚀 ~ SOL price cron job ~ res');
+    console.log('🚀 ~ SOL price cron job ~ res', res);
 
     const price = res.data.value;
     await redisClient.set(key, price);
